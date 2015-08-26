@@ -16,9 +16,11 @@
   <tbody>
     <tr ng-repeat="user in users | filter:search | orderBy: orderkey | limitTo: limit : (page - 1) * limit">
       <td>
-        <button class="btn" ng-click="gohome('/EditUser')">
-          <span class="glyphicon glyphicon-pencil"></span>  Edit
-        </button>
+        <a href="#/EditUser/{{user.id}}">
+          <button class="btn">
+            <span class="glyphicon glyphicon-pencil"></span>  Edit
+          </button>
+        </a>
       </td>
       <td>
         <button class="btn" ng-click="del(user.id)">

@@ -3,7 +3,8 @@ var myApp = angular.module('myApp', ['ngRoute']);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*Set up data factory*/
-myApp.factory('Userdata', function () {
+myApp.service('Userdata', function () {
+  var id, fName, lName, Sex, Age;
   var users = [
     {id:1, fName:'Hege',lName:"Pege", Sex:'Male', Age:'25' },
     {id:2, fName:'Kim',lName:"Pim", Sex:'Male', Age:'33' },
@@ -21,16 +22,41 @@ myApp.factory('Userdata', function () {
     {id:14, fName:'Peter',lName:"Pan", Sex:'Male', Age:'37' },
     {id:15, fName:'Peter',lName:"Pan", Sex:'Male', Age:'37' }
     ];
-    users.getUser = function () {
+    this.getUser = function () {
       return users;
-    }
-    return users;
+    };
+
+    this.del = function (id) {
+      var i;
+      users.splice(id - 1, 1);
+      for (i = id - 1; i < users.length; i++) {
+        users[i].id--;
+      };
+    };
+
+    this.addUser = function (fName, lName, Sex, Age) {
+      var newUser = {id: users.length + 1, fName: fName, lName: lName, Sex: Sex, Age: Age};
+      users.push(newUser);
+      fName = '';
+      lName = '';
+      Sex = '';
+      Age = '';
+      console.log(newUser);
+    };
+
+    this.editUser = function (id, fName, lName, Sex, Age) {
+      users[id-1].fName = fName;
+      users[id-1].lName = lName;
+      users[id-1].Sex = Sex;
+      users[id-1].Age = Age;
+      console.log(users[id-1]);
+    };
 });
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*Set up userlist controller*/
 myApp.controller('userlistCtrl', function($scope, $location, Userdata) {
-$scope.users = Userdata;
+$scope.users = Userdata.getUser();
 $scope.limit = 7;
 $scope.page = 1;
 $scope.orderkey = "lName";
@@ -44,12 +70,8 @@ $scope.setOrder = function (orderkey) {
 }
 
 $scope.del = function (id) {
-  var i;
-  $scope.users.splice(id - 1, 1);
-  for (i = id - 1; i < $scope.users.length; i++) {
-    $scope.users[i].id--;
-  };
-};
+  Userdata.del(id);
+}
 
 $scope.prev = function () {
   if ($scope.page != 1) {
@@ -70,7 +92,7 @@ $scope.next = function () {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*Set up newuser controller*/
 myApp.controller('NewUserCtrl', function($scope,$location, Userdata) {
-$scope.users = Userdata;
+$scope.users = Userdata.getUser();
 $scope.fName = '';
 $scope.lName = '';
 $scope.Sex ='';
@@ -82,16 +104,10 @@ $scope.incomplete = false;
 
 $scope.gohome = function (path) {
   $location.path(path);
-}
+};
 
 $scope.addUser = function () {
-  var newUser = {id: $scope.users.length + 1, fName: $scope.fName, lName: $scope.lName, Sex: $scope.Sex, Age: $scope.Age};
-  $scope.users.push(newUser);
-  $scope.fName = '';
-  $scope.lName = '';
-  $scope.Sex = '';
-  $scope.Age = '';
-  console.log(newUser);
+  Userdata.addUser($scope.fName, $scope.lName, $scope.Sex, $scope.Age);
 };
 
 $scope.$watch('passw1',function() {$scope.test();});
@@ -119,8 +135,8 @@ if ($scope.passw1 !== $scope.passw2) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*Set up edituser controller*/
-myApp.controller('EditUserCtrl', function($scope, $location, Userdata) {
-$scope.users = Userdata;
+myApp.controller('EditUserCtrl', function($scope, $location, $routeParams, Userdata) {
+$scope.users = Userdata.getUser();
 $scope.fName = '';
 $scope.lName = '';
 $scope.Sex ='';
@@ -134,19 +150,14 @@ $scope.gohome = function (path) {
   $location.path(path);
 }
 
-//cannot pass id parameter
-var id = 1;
+var id = $routeParams.id;
   $scope.fName = $scope.users[id-1].fName;
   $scope.lName = $scope.users[id-1].lName; 
   $scope.Sex = $scope.users[id-1].Sex;
   $scope.Age = $scope.users[id-1].Age;
 
 $scope.editUser = function () {
-  $scope.users[id-1].fName = $scope.fName;
-  $scope.users[id-1].lName = $scope.lName;
-  $scope.users[id-1].Sex = $scope.Sex;
-  $scope.users[id-1].Age = $scope.Age;
-  console.log($scope.users[id-1]);
+  Userdata.editUser(id, $scope.fName, $scope.lName, $scope.Sex, $scope.Age);
 };
 
 $scope.$watch('passw1',function() {$scope.test();});
@@ -184,7 +195,7 @@ myApp.config(['$routeProvider',
         templateUrl: 'newuser.html',
         controller: 'NewUserCtrl'
       })
-      .when('/EditUser', {
+      .when('/EditUser/:id', {
         templateUrl: 'edituser.html',
         controller: 'EditUserCtrl'
       })
