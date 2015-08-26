@@ -1,0 +1,42 @@
+<meta charset="utf-8">
+<div>
+<h3>Users</h3>
+<p>Search: <input type="text" ng-model="search"></p>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Edit</th>
+      <th>Delete</th>
+      <th><a ng-click="setOrder('fName')">First Name</a></th>
+      <th><a ng-click="setOrder('lName')">Last Name</a></th>
+      <th><a ng-click="setOrder('Sex')">Sex</a></th>
+      <th><a ng-click="setOrder('Age')">Age</a></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="user in users | filter:search | orderBy: orderkey | limitTo: limit : (page - 1) * limit">
+      <td>
+        <button class="btn" ng-click="gohome('/EditUser')">
+          <span class="glyphicon glyphicon-pencil"></span>  Edit
+        </button>
+      </td>
+      <td>
+        <button class="btn" ng-click="del(user.id)">
+          <span class="glyphicon glyphicon-remove-circle"></span>  Delete
+        </button>
+      </td>
+      <td>{{ user.fName }}</td>
+      <td>{{ user.lName }}</td>
+      <td>{{ user.Sex }}</td>
+      <td>{{ user.Age }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<button class="btn" ng-if="users.length > limit" ng-click="prev()">Prev Page</button>
+<button class="btn" ng-if="users.length > limit" ng-click="next()">Next Page</button>
+<hr>
+<button class="btn btn-success" ng-click="gohome('/CreateNewUser')">
+  <span class="glyphicon glyphicon-user"></span>  Create New User
+</button>
+</div>
